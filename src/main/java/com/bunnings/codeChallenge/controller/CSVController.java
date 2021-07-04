@@ -24,15 +24,35 @@ public class CSVController {
         CSVService fileService;
 
 
-    @PostMapping("/upload/catalogA")
+    @PostMapping("/uploadFile")
     public ResponseEntity<String> uploadCatalogA(@RequestParam("file") MultipartFile file) {
         String message = "";
 
         if (CSVHelper.hasCSVFormat(file)) {
-            fileService.saveCatalogA(file);
 
             try {
-                fileService.saveCatalogA(file);
+                if("catalogA.csv".equalsIgnoreCase(file.getOriginalFilename())){
+                    fileService.saveCatalogA(file);
+                }
+                else  if("catalogB.csv".equalsIgnoreCase(file.getOriginalFilename())){
+                    fileService.saveCatalogB(file);
+                }
+                else  if("barcodesA.csv".equalsIgnoreCase(file.getOriginalFilename())){
+                    fileService.saveBarcodesA(file);
+                }
+                else  if("barcodesB.csv".equalsIgnoreCase(file.getOriginalFilename())){
+                    fileService.saveBarcodesB(file);
+                }
+                else  if("suppliersA.csv".equalsIgnoreCase(file.getOriginalFilename())){
+                    fileService.saveSuppliersA(file);
+                }else  if("suppliersB.csv".equalsIgnoreCase(file.getOriginalFilename())){
+                    fileService.saveSuppliersB(file);
+                }else {
+                    message = "Could not upload the file as file name is not good: " + file.getOriginalFilename() + "!";
+                    return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("\" message \": \" "+ message +" \"");
+                }
+
+
                 message = "Uploaded the file successfully: " + file.getOriginalFilename();
                 return ResponseEntity.status(HttpStatus.OK).body( "\" message \": \" "+ message +" \"");
             } catch (Exception e) {
@@ -47,7 +67,7 @@ public class CSVController {
 
     @GetMapping("/downloadMergedCatalog")
     public ResponseEntity<Resource> getFile() {
-        String filename = "mergedCatalog.csv";
+        String filename = "result_output.csv";
         InputStreamResource file = new InputStreamResource(fileService.getMergedCatalog());
 
         return ResponseEntity.ok()
